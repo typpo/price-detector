@@ -54,12 +54,24 @@ app.get('/watch', function(req, resp) {
   });
 });
 
-app.get('/getUpdates', function(req, resp) {
+app.get('/listWatches', function(req, resp) {
   var user = req.query.user;
   // TODO If since isn't specified, default to last hour.
   var since = req.query.since;
   priceAlerts.find({
     user: user
+  }).toArray(function(err, docs) {
+    resp.send(docs);
+  });
+});
+
+app.get('/getUpdates', function(req, resp) {
+  var user = req.query.user;
+  // If since isn't specified, default to last hour.
+  var since = parseInt(req.query.since) || (+new Date() - 60*60*1000);
+  priceAlerts.find({
+    user: user,
+    lastChanged: {$gt: since},
   }).toArray(function(err, docs) {
     resp.send(docs);
   });

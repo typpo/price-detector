@@ -32,16 +32,20 @@ phantom.create(function(ph) {
 function checkDoc(page, doc) {
   page.open(doc.url, function(status) {
     console.log('Opened', doc.url, status);
-    page.evaluate('document.querySelector("' + doc.selector + '").innerHTML', function(result) {
+    page.evaluate('function() { return document.querySelector("' + doc.selector + '").innerHTML; }', function(result) {
       var now = +new Date();
       if (result && result != doc.lastValue) {
         // New value!
         console.log('Noticed a change in value of', doc.selector, 'on', doc.url);
-        priceAlerts.update({_id: doc._id}, {$set: {
+        var updatedValues = {
           lastValue: result,
-          lastChanged: now,
           lastChecked: now,
-        }}, function(err, inserted) {
+        };
+        if (doc.lastValue) {
+          // Don't record a change if it's the first time we've seen the value.
+          doc.lastChanged = now;
+        }
+        priceAlerts.update({_id: doc._id}, {$set: updatedValues}, function(err, inserted) {
           if (err) throw err;
           pendingChecks--;
         });
