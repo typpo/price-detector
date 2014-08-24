@@ -4,6 +4,7 @@ var MongoClient = require('mongodb').MongoClient;
 // For each document, check if selector value has changed.
 
 var priceAlerts;
+var pendingChecks = 0;
 phantom.create(function(ph) {
   MongoClient.connect('mongodb://127.0.0.1:27017/PriceDetector', function(err, db) {
     if (err) throw err;
@@ -11,11 +12,19 @@ phantom.create(function(ph) {
 
     priceAlerts.find().toArray(function(err, docs) {
       docs.map(function(doc) {
+        pendingChecks++;
         ph.createPage(function(page) {
           checkDoc(page, doc);
         });
-
       }); // docs.map
+
+      setInterval(function() {
+        if (pendingChecks === 0) {
+          console.log('Done.');
+          ph.exit();
+          process.kill();  // ph.exit doesn't wrok great
+        }
+      }, 100);
     }); // priceAlerts.find
   }); // MongoClient.connect
 }); // phantom.create
@@ -23,7 +32,6 @@ phantom.create(function(ph) {
 function checkDoc(page, doc) {
   page.open(doc.url, function(status) {
     console.log('Opened', doc.url, status);
-
     page.evaluate('document.querySelector("' + doc.selector + '").innerHTML', function(result) {
       var now = +new Date();
       if (result && result != doc.lastValue) {
@@ -33,12 +41,18 @@ function checkDoc(page, doc) {
           lastValue: result,
           lastChanged: now,
           lastChecked: now,
-        }});
+        }}, function(err, inserted) {
+          if (err) throw err;
+          pendingChecks--;
+        });
       } else {
         // No change, or element isn't present on page.
         priceAlerts.update({_id: doc._id}, {$set: {
           lastChecked: now,
-        }});
+        }}, function(err, inserted) {
+          if (err) throw err;
+          pendingChecks--;
+        });
       }
     });
   });
