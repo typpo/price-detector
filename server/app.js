@@ -38,20 +38,17 @@ app.get('/watch', function(req, resp) {
 
   // TODO may need to canonicalize url, selector
 
-  priceAlerts.find({
+  var newdoc = {
     user: user,
     url: url,
     selector: selector
-  }).toArray(function(err, docs) {
+  };
+  priceAlerts.find(newdoc).toArray(function(err, docs) {
     if (docs.length > 0) {
       resp.send({success: false, error: 'duplicate'});
       return;
     }
-    priceAlerts.insert({
-      user: user,
-      url: url,
-      selector: selector
-    }, function(err, docs) {
+    priceAlerts.insert(newdoc, function(err, docs) {
       resp.send({success: true});
     });
   });
@@ -59,6 +56,8 @@ app.get('/watch', function(req, resp) {
 
 app.get('/getUpdates', function(req, resp) {
   var user = req.query.user;
+  // TODO If since isn't specified, default to last hour.
+  var since = req.query.since;
   priceAlerts.find({
     user: user
   }).toArray(function(err, docs) {
