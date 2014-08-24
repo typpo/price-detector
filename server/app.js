@@ -32,12 +32,28 @@ app.configure('development', function(){
 });
 
 app.get('/watch', function(req, resp) {
-  priceAlerts.insert({
-    user: req.query.user,
-    url: req.query.url,
-    selector: req.query.selector
-  }, function(err, docs) {
-    resp.send({success: true});
+  var user = req.query.user;
+  var url = req.query.url;
+  var selector = req.query.selector;
+
+  // TODO may need to canonicalize url, selector
+
+  priceAlerts.find({
+    user: user,
+    url: url,
+    selector: selector
+  }).toArray(function(err, docs) {
+    if (docs.length > 0) {
+      resp.send({success: false, error: 'duplicate'});
+      return;
+    }
+    priceAlerts.insert({
+      user: user,
+      url: url,
+      selector: selector
+    }, function(err, docs) {
+      resp.send({success: true});
+    });
   });
 });
 
