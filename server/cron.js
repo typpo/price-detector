@@ -43,7 +43,7 @@ function checkDoc(page, doc) {
         };
         if (doc.lastValue) {
           // Don't record a change if it's the first time we've seen the value.
-          doc.lastChanged = now;
+          updatedValues.lastChanged = now;
         }
         priceAlerts.update({_id: doc._id}, {$set: updatedValues}, function(err, inserted) {
           if (err) throw err;
