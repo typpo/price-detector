@@ -11,6 +11,8 @@
     "less-middleware": "*",
     "connect-redis": "latest",
     "request": "latest",
-    "process": "latest"
+    "process": "latest",
+    "redis": "latest",
+    "mongodb": "latest"
   }
 }

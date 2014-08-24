@@ -3,6 +3,14 @@ var express = require('express')
   , process = require('process')
   , fs = require('fs')
   , path = require('path')
+  , MongoClient = require('mongodb').MongoClient
+
+// Db
+var priceAlerts;
+MongoClient.connect('mongodb://127.0.0.1:27017/PriceDetector', function(err, db) {
+  if (err) throw err;
+  priceAlerts = db.collection('PriceAlerts');
+});
 
 var app = express();
 
@@ -23,8 +31,14 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/', function(req, resp) {
-
+app.get('/watch', function(req, resp) {
+  priceAlerts.insert({
+    user: req.query.user,
+    url: req.query.url,
+    selector: req.query.selector
+  }, function(err, docs) {
+    resp.send({success: true});
+  });
 });
 
 // Process stuff
