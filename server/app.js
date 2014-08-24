@@ -41,6 +41,15 @@ app.get('/watch', function(req, resp) {
   });
 });
 
+app.get('/getUpdates', function(req, resp) {
+  var user = req.query.user;
+  priceAlerts.find({
+    user: user
+  }).toArray(function(err, docs) {
+    resp.send(docs);
+  });
+});
+
 // Process stuff
 process.on('uncaughtException', function (error) {
  console.error(error.stack);
