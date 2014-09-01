@@ -19,7 +19,7 @@
     "128": "/icon-128.png"
   },
   "background": {
-    "page": "/popup.html"
+    "page": "/background.html"
   },
   "content_scripts": [{
     "matches": ["http://*/*", "https://*/*"],
