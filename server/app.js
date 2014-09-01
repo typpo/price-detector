@@ -56,8 +56,6 @@ app.get('/watch', function(req, resp) {
 
 app.get('/listWatches', function(req, resp) {
   var user = req.query.user;
-  // TODO If since isn't specified, default to last hour.
-  var since = req.query.since;
   priceAlerts.find({
     user: user
   }).toArray(function(err, docs) {
