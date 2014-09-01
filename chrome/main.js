@@ -2,7 +2,7 @@ chrome.runtime.onInstalled.addListener(
   function() {
     chrome.contextMenus.create({"title": "Track price",
                                 "contexts":["all"],
-                                "onclick": onClickHandler});  
+                                "onclick": onClickHandler});
   });
 
 function onClickHandler(info, tab) {
@@ -12,7 +12,7 @@ function onClickHandler(info, tab) {
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
         var isSuccess = false;
-        if (xhr.readyState = 4) {
+        if (xhr.readyState == 4) {
           if (xhr.status == 200) {
             console.log("Saved");
             isSuccess = true;
