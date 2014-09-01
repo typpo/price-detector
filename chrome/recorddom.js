@@ -52,3 +52,19 @@ function getCSSPath(e){
   }
   return path.join(" > ");
 }
+
+
+function phantomFind(selector){
+  var selectors = selector.split(' > ')
+  var first = selectors.shift();
+  var e = jQuery(first);
+  selectors.forEach(function(selector){
+    e = e.find(selector);
+    if (e.size() == 0){
+      return jQuery(null);
+    }
+  });
+
+  return e;
+}
+
