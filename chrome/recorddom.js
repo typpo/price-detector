@@ -8,8 +8,8 @@ window.addEventListener("mousedown", onMouseDown, true);
 chrome.extension.onRequest.addListener(
   function(request, sender, sendResponse) {
     if(request == "getLastClickedDomPath") {
-      // TODO: get dom path from lastClickedDom.
       sendResponse({selector: "dummyselector"});
+      //sendResponse({selector: getCSSPath(lastClickedDom)});
     }
   });
 

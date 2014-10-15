@@ -19,10 +19,11 @@
     "128": "/icon-128.png"
   },
   "background": {
+    //"page": "popup.html"
     "scripts": ["main.js"]
   },
   "content_scripts": [{
     "matches": ["http://*/*", "https://*/*"],
-    "js": ["/recorddom.js"]
+    "js": ["/jquery.js", "/recorddom.js"]
   }]
 }

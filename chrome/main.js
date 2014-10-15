@@ -1,3 +1,5 @@
+var numUnreadNotice = 0;
+
 chrome.runtime.onInstalled.addListener(
   function() {
     chrome.contextMenus.create({"title": "Track price",
@@ -15,28 +17,50 @@ function onClickHandler(info, tab) {
           if (xhr.status == 200) {
             console.log("Saved");
             isSuccess = true;
-            // TODO: alert user action is complete.
-            chrome.extension.sendMessage({
-              popup: true,
-              action: 'save',
-              url: tab.url,
-              success:true
-            },
-              function(response) {
-              console.log(response);
-            });
+            numUnreadNotice++;
           } else {
             console.log("Error" + xhr.statusText);
           }
         }
-
-        //chrome.extension.sendMessage(
-        //  {action: 'save', success: isSuccess, url: tab.url},
-        //  function(){});
-      };  // xhr.onreadystatechange
+        
+        if (isSuccess) {
+          if (numUnreadNotice > 0) {
+            chrome.browserAction.setBadgeText({text: numUnreadNotice.toString()});
+          }
+        }
+      };
       var params = 'user=judymou&url=' + encodeURIComponent(tab.url) +
                    '&selector=' + encodeURIComponent(response.selector);
       xhr.open('GET', 'http://127.0.0.1:3000/watch?' + params, true);
       xhr.send();
-    });  // chrome.tabs.sendRequest
+    });
 }
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
+  if(request.action == "listWatches"){
+    numUnreadNotice = 0;
+    chrome.browserAction.setBadgeText({text: ""});
+
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      var isSuccess = false;
+      if (xhr.readyState == 4) {
+        if (xhr.status == 200) {
+          console.log("Received list of watches");
+          isSuccess = true;
+        } else {
+          console.log("Error" + xhr.statusText);
+        }
+      }
+      if (isSuccess) {
+        var views = chrome.extension.getViews({type: "popup"});
+        for (var i = 0; i < views.length; i++) {
+          views[i].document.getElementById("watch_list").innerHTML= xhr.responseText;
+        }
+      }
+    };
+    var params = 'user=judymou';
+    xhr.open('GET', 'http://127.0.0.1:3000/listWatches?' + params, true);
+    xhr.send();
+  }
+});
